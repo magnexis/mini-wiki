@@ -1,5 +1,13 @@
 const jwt = require('jsonwebtoken');
 
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
+}
+
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
@@ -9,7 +17,7 @@ function authMiddleware(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
+    const payload = jwt.verify(token, getJwtSecret());
     req.user = {
       id: payload.id,
       username: payload.username
@@ -30,7 +38,7 @@ function optionalAuth(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
+    const payload = jwt.verify(token, getJwtSecret());
     req.user = { id: payload.id, username: payload.username };
   } catch {
     req.user = null;
@@ -41,5 +49,6 @@ function optionalAuth(req, res, next) {
 
 module.exports = {
   authMiddleware,
-  optionalAuth
+  optionalAuth,
+  getJwtSecret
 };

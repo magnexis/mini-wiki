@@ -4,13 +4,14 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const dayjs = require('dayjs');
 const { run, get } = require('../db/database');
+const { getJwtSecret } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 function signToken(user) {
   return jwt.sign(
     { id: user.id, username: user.username },
-    process.env.JWT_SECRET || 'dev_secret',
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
 }
